@@ -21,20 +21,27 @@ function submit() {
 </script>
 
 <template>
-  <AuthLayout title="Reset password" :description="`Choose a new password for ${email}.`">
-    <form class="space-y-4" @submit.prevent="submit">
+  <AuthLayout title="Reset your password" :description="`Choose a new password for ${email}.`">
+    <form class="space-y-5" @submit.prevent="submit">
       <div class="space-y-2">
-        <Label for="password">New password</Label>
-        <Input id="password" v-model="form.data.password" type="password" autocomplete="new-password" />
+        <Label for="reset-password">New password</Label>
+        <Input
+          id="reset-password"
+          v-model="form.data.password"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
         <InputError :message="form.error('password')" />
       </div>
 
       <div class="space-y-2">
-        <Label for="passwordConfirmation">Confirm new password</Label>
+        <Label for="reset-password-confirm">Confirm new password</Label>
         <Input
-          id="passwordConfirmation"
+          id="reset-password-confirm"
           v-model="form.data.passwordConfirmation"
           type="password"
+          placeholder="••••••••"
           autocomplete="new-password"
         />
         <InputError :message="form.error('passwordConfirmation')" />
@@ -42,7 +49,7 @@ function submit() {
         <InputError :message="form.error('_error')" />
       </div>
 
-      <Button type="submit" class="w-full" :disabled="form.processing">
+      <Button id="reset-submit" type="submit" class="w-full" :disabled="form.processing">
         {{ form.processing ? 'Resetting…' : 'Reset password' }}
       </Button>
     </form>

@@ -16,32 +16,37 @@ function resend() {
 
 <template>
   <AuthLayout
-    title="Verify your email"
-    description="We sent a verification link to your email address."
+    title="Check your email"
+    description="We've sent a verification link to your email address."
   >
-    <div class="flex flex-col items-center gap-4 text-center">
-      <div class="flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
-        <MailCheck class="h-6 w-6" />
+    <div class="flex flex-col items-center gap-5 text-center">
+      <div class="flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
+        <MailCheck class="h-7 w-7 text-muted-foreground" />
       </div>
 
-      <p class="text-sm text-muted-foreground">
-        Click the link in the email to activate your account.
-        <span v-if="user">Signed in as <strong>{{ user.email }}</strong>.</span>
-        <span class="mt-1 block text-xs">(MAIL_DRIVER=log writes the link to storage/logs/mail.log)</span>
+      <p class="max-w-xs text-sm text-muted-foreground">
+        Click the link in the email to verify your account.
+        <span v-if="user">
+          Signed in as <strong class="text-foreground">{{ user.email }}</strong>.
+        </span>
       </p>
 
       <div
         v-if="status === 'sent'"
-        class="w-full rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+        class="w-full rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
       >
         A fresh verification link has been sent.
       </div>
 
-      <Button v-if="user" class="w-full" @click="resend">Resend verification email</Button>
+      <Button v-if="user" id="resend-verify" class="w-full" @click="resend">
+        Resend verification email
+      </Button>
     </div>
 
     <template #footer>
-      <Link href="/dashboard" class="font-medium text-foreground hover:underline">Go to dashboard</Link>
+      <Link href="/dashboard" class="font-medium text-foreground underline-offset-4 hover:underline">
+        Go to dashboard
+      </Link>
     </template>
   </AuthLayout>
 </template>

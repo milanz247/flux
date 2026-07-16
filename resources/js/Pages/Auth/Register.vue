@@ -20,45 +20,65 @@ function submit() {
 </script>
 
 <template>
-  <AuthLayout title="Create an account" description="A verification link will be emailed to you.">
-    <form class="space-y-4" @submit.prevent="submit">
+  <AuthLayout title="Create an account" description="Enter your details below to create your account.">
+    <form class="space-y-5" @submit.prevent="submit">
       <div class="space-y-2">
-        <Label for="name">Name</Label>
-        <Input id="name" v-model="form.data.name" placeholder="Jane Doe" autocomplete="name" />
+        <Label for="register-name">Full name</Label>
+        <Input
+          id="register-name"
+          v-model="form.data.name"
+          placeholder="John Doe"
+          autocomplete="name"
+        />
         <InputError :message="form.error('name')" />
       </div>
 
       <div class="space-y-2">
-        <Label for="email">Email</Label>
-        <Input id="email" v-model="form.data.email" type="email" placeholder="you@example.com" autocomplete="email" />
+        <Label for="register-email">Email address</Label>
+        <Input
+          id="register-email"
+          v-model="form.data.email"
+          type="email"
+          placeholder="name@example.com"
+          autocomplete="email"
+        />
         <InputError :message="form.error('email')" />
       </div>
 
       <div class="space-y-2">
-        <Label for="password">Password</Label>
-        <Input id="password" v-model="form.data.password" type="password" autocomplete="new-password" />
+        <Label for="register-password">Password</Label>
+        <Input
+          id="register-password"
+          v-model="form.data.password"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="new-password"
+        />
         <InputError :message="form.error('password')" />
       </div>
 
       <div class="space-y-2">
-        <Label for="passwordConfirmation">Confirm password</Label>
+        <Label for="register-password-confirm">Confirm password</Label>
         <Input
-          id="passwordConfirmation"
+          id="register-password-confirm"
           v-model="form.data.passwordConfirmation"
           type="password"
+          placeholder="••••••••"
           autocomplete="new-password"
         />
         <InputError :message="form.error('passwordConfirmation')" />
       </div>
 
-      <Button type="submit" class="w-full" :disabled="form.processing">
+      <Button id="register-submit" type="submit" class="w-full" :disabled="form.processing">
         {{ form.processing ? 'Creating account…' : 'Create account' }}
       </Button>
     </form>
 
     <template #footer>
-      Already registered?
-      <Link href="/login" class="font-medium text-foreground hover:underline">Sign in</Link>
+      Already have an account?
+      <Link href="/login" class="font-medium text-foreground underline-offset-4 hover:underline">
+        Log in
+      </Link>
     </template>
   </AuthLayout>
 </template>

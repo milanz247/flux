@@ -19,31 +19,38 @@ function submit() {
 <template>
   <AuthLayout
     title="Forgot your password?"
-    description="Enter your email and we'll send you a reset link."
+    description="Enter your email address and we'll send you a password reset link."
   >
     <div
       v-if="status === 'sent'"
-      class="mb-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+      class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
     >
       If that address exists, a reset link is on its way.
-      <span class="block text-xs opacity-80">(MAIL_DRIVER=log writes it to storage/logs/mail.log)</span>
     </div>
 
-    <form class="space-y-4" @submit.prevent="submit">
+    <form class="space-y-5" @submit.prevent="submit">
       <div class="space-y-2">
-        <Label for="email">Email</Label>
-        <Input id="email" v-model="form.data.email" type="email" placeholder="you@example.com" autocomplete="email" />
+        <Label for="forgot-email">Email address</Label>
+        <Input
+          id="forgot-email"
+          v-model="form.data.email"
+          type="email"
+          placeholder="name@example.com"
+          autocomplete="email"
+        />
         <InputError :message="form.error('email')" />
       </div>
 
-      <Button type="submit" class="w-full" :disabled="form.processing">
+      <Button id="forgot-submit" type="submit" class="w-full" :disabled="form.processing">
         {{ form.processing ? 'Sending…' : 'Send reset link' }}
       </Button>
     </form>
 
     <template #footer>
-      Remembered it?
-      <Link href="/login" class="font-medium text-foreground hover:underline">Back to sign in</Link>
+      Remember your password?
+      <Link href="/login" class="font-medium text-foreground underline-offset-4 hover:underline">
+        Back to log in
+      </Link>
     </template>
   </AuthLayout>
 </template>
