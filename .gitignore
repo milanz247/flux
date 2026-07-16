@@ -1,0 +1,19 @@
+# Environment
+.env
+
+# Go
+bin/
+flux.exe
+
+# Node
+node_modules/
+
+# Build output
+public/build/
+
+# Logs & storage
+storage/logs/*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
