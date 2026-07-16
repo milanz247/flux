@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LayoutDashboard, Users } from 'lucide-vue-next'
+import { LayoutDashboard } from 'lucide-vue-next'
 import { Link, useAppName, usePage } from '@/flux'
 import { cn } from '@/lib/utils'
 import AppLogo from '@/Components/AppLogo.vue'
@@ -11,7 +11,6 @@ const page = usePage()
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Users', href: '/users', icon: Users },
 ]
 
 function isActive(href: string): boolean {

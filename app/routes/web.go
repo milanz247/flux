@@ -15,13 +15,11 @@ func Register(app *framework.App) {
 	route := app.Router()
 
 	// Services (constructor injection — no repositories, no globals).
-	userService := services.NewUserService(app.DB())
 	authService := services.NewAuthService(app)
 
 	// Controllers.
 	authController := controllers.NewAuthController(authService)
-	dashboardController := controllers.NewDashboardController(userService)
-	userController := controllers.NewUserController(userService)
+	dashboardController := controllers.NewDashboardController()
 
 	// Guest-only pages.
 	guest := route.Group("", middleware.Guest(app, authService))
@@ -43,7 +41,4 @@ func Register(app *framework.App) {
 	auth.Get("/dashboard", dashboardController.Index)
 	auth.Post("/logout", authController.Logout)
 	auth.Post("/verify-email/resend", authController.ResendVerification)
-
-	// Full RESTful resource — expands to the seven CRUD routes.
-	auth.Resource("/users", userController)
 }
