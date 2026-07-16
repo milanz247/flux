@@ -1,0 +1,11 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flux logo">
+  <defs>
+    <linearGradient id="grad" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="55%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="11" fill="url(#grad)" />
+  <path d="M21 9 L13 21.5 L18.5 21.5 L17 31 L27 17.5 L21.2 17.5 Z" fill="white" fill-opacity="0.95" />
+</svg>

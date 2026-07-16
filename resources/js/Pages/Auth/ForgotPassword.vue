@@ -5,6 +5,7 @@ import { Link, useForm } from '@/flux'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
 import { Label } from '@/Components/ui/label'
+import { Alert, AlertDescription } from '@/Components/ui/alert'
 import InputError from '@/Components/InputError.vue'
 
 defineProps<{ status?: string }>()
@@ -21,13 +22,12 @@ function submit() {
     title="Forgot your password?"
     description="Enter your email and we'll send you a reset link."
   >
-    <div
-      v-if="status === 'sent'"
-      class="mb-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-    >
-      If that address exists, a reset link is on its way.
-      <span class="block text-xs opacity-80">(MAIL_DRIVER=log writes it to storage/logs/mail.log)</span>
-    </div>
+    <Alert v-if="status === 'sent'" variant="success" class="mb-4">
+      <AlertDescription>
+        If that address exists, a reset link is on its way.
+        <span class="block text-xs opacity-80">(MAIL_DRIVER=log writes it to storage/logs/mail.log)</span>
+      </AlertDescription>
+    </Alert>
 
     <form class="space-y-4" @submit.prevent="submit">
       <div class="space-y-2">

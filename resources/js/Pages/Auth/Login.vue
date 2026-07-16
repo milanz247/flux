@@ -5,6 +5,7 @@ import { Link, useForm } from '@/flux'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
 import { Label } from '@/Components/ui/label'
+import { Alert, AlertDescription } from '@/Components/ui/alert'
 import InputError from '@/Components/InputError.vue'
 
 defineProps<{ status?: string }>()
@@ -21,12 +22,9 @@ function submit() {
 
 <template>
   <AuthLayout title="Welcome back" description="Sign in to your account to continue.">
-    <div
-      v-if="status === 'password-reset'"
-      class="mb-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-    >
-      Your password has been reset. Sign in with your new password.
-    </div>
+    <Alert v-if="status === 'password-reset'" variant="success" class="mb-4">
+      <AlertDescription>Your password has been reset. Sign in with your new password.</AlertDescription>
+    </Alert>
 
     <form class="space-y-4" @submit.prevent="submit">
       <div class="space-y-2">

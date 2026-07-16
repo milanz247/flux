@@ -4,6 +4,7 @@ import { MailCheck } from 'lucide-vue-next'
 import AuthLayout from '@/Layouts/AuthLayout.vue'
 import { Link, router, useAuth } from '@/flux'
 import { Button } from '@/Components/ui/button'
+import { Alert, AlertDescription } from '@/Components/ui/alert'
 
 defineProps<{ status?: string }>()
 
@@ -30,12 +31,9 @@ function resend() {
         <span class="mt-1 block text-xs">(MAIL_DRIVER=log writes the link to storage/logs/mail.log)</span>
       </p>
 
-      <div
-        v-if="status === 'sent'"
-        class="w-full rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-      >
-        A fresh verification link has been sent.
-      </div>
+      <Alert v-if="status === 'sent'" variant="success" class="w-full">
+        <AlertDescription>A fresh verification link has been sent.</AlertDescription>
+      </Alert>
 
       <Button v-if="user" class="w-full" @click="resend">Resend verification email</Button>
     </div>
