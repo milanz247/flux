@@ -72,6 +72,7 @@ func New(cfg *config.Config, opts ...Option) (*App, error) {
 	// Static assets: the compiled Vite bundle and anything in public/.
 	engine.Static("/"+cfg.Vite.BuildDir, "./public/"+cfg.Vite.BuildDir)
 	engine.StaticFile("/favicon.ico", "./public/favicon.ico")
+	engine.StaticFile("/favicon.svg", "./public/favicon.svg")
 
 	engine.Use(app.requestLogger())
 

@@ -194,3 +194,13 @@ func (s *AuthService) issueSession(user models.User) (AuthResult, error) {
 	}
 	return AuthResult{User: toUserDTO(user), Token: token}, nil
 }
+
+func toUserDTO(user models.User) dto.UserDTO {
+	return dto.UserDTO{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Verified:  user.EmailVerifiedAt != nil,
+		CreatedAt: user.CreatedAt.Format("2006-01-02 15:04"),
+	}
+}

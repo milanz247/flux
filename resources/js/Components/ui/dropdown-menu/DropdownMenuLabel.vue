@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { DropdownMenuLabel } from 'reka-ui'
 import { cn } from '@/lib/utils'
-
-const props = defineProps<{ class?: string }>()
 </script>
 
 <template>
-  <div :class="cn('px-2 py-1.5 text-sm font-semibold', props.class)">
+  <DropdownMenuLabel :class="cn('px-3 py-2 text-sm font-medium', $attrs.class as string)">
     <slot />
-  </div>
+  </DropdownMenuLabel>
 </template>

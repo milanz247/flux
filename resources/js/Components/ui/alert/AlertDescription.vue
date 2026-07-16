@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 </script>
 
 <template>
-  <div :class="cn('flex flex-col space-y-2 text-left', $attrs.class as string)">
+  <div :class="cn('text-sm [&_p]:leading-relaxed', $attrs.class as string)">
     <slot />
   </div>
 </template>

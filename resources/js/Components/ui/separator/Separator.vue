@@ -1,25 +1,22 @@
 <script setup lang="ts">
+import { Separator } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
-const props = withDefaults(
-  defineProps<{
-    orientation?: 'horizontal' | 'vertical'
-    decorative?: boolean
-    class?: string
-  }>(),
+withDefaults(
+  defineProps<{ orientation?: 'horizontal' | 'vertical'; decorative?: boolean }>(),
   { orientation: 'horizontal', decorative: true },
 )
 </script>
 
 <template>
-  <div
-    :role="decorative ? 'none' : 'separator'"
-    :aria-orientation="decorative ? undefined : orientation"
+  <Separator
+    :orientation="orientation"
+    :decorative="decorative"
     :class="
       cn(
         'shrink-0 bg-border',
-        orientation === 'horizontal' ? 'h-[1px] w-full' : 'h-full w-[1px]',
-        props.class,
+        orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
+        $attrs.class as string,
       )
     "
   />

@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { DialogDescription } from 'reka-ui'
 import { cn } from '@/lib/utils'
-
-const props = defineProps<{ class?: string }>()
 </script>
 
 <template>
-  <p :class="cn('text-sm text-muted-foreground', props.class)">
+  <DialogDescription :class="cn('text-sm text-muted-foreground', $attrs.class as string)">
     <slot />
-  </p>
+  </DialogDescription>
 </template>

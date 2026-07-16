@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { inject } from 'vue'
+import { DropdownMenuItem, type DropdownMenuItemProps } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<{ class?: string }>()
-const close = inject<() => void>('dropdown-menu-close', () => {})
+defineProps<DropdownMenuItemProps>()
 </script>
 
 <template>
-  <button
+  <DropdownMenuItem
+    v-bind="$props"
     :class="
       cn(
-        'relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        props.class,
+        'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        $attrs.class as string,
       )
     "
-    @click="close()"
   >
     <slot />
-  </button>
+  </DropdownMenuItem>
 </template>
