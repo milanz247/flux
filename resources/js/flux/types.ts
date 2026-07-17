@@ -7,10 +7,17 @@ export interface AuthUser {
   emailVerifiedAt?: string
 }
 
+/** One-shot message set server-side via req.RedirectWith(url, type, message). */
+export interface Flash {
+  type: string
+  message: string
+}
+
 /** Props the Go framework injects into every page (framework/response.go). */
 export interface SharedProps {
   auth: { user: AuthUser | null }
   appName: string
+  flash: Flash | null
 }
 
 /** The page object exchanged with the Go server. */

@@ -63,7 +63,7 @@ func (c *AuthController) Register(req *framework.Request) {
 // Logout — POST /logout
 func (c *AuthController) Logout(req *framework.Request) {
 	req.App().Auth().EndSession(req)
-	req.Redirect("/login")
+	req.RedirectWith("/login", "success", "You have been signed out.")
 }
 
 // ShowForgotPassword — GET /forgot-password

@@ -3,10 +3,16 @@ package framework
 import (
 	"errors"
 	"log/slog"
+	"maps"
 	"net/http"
 
 	"gorm.io/gorm"
 )
+
+// M is shorthand for an arbitrary JSON object, like gin.H:
+//
+//	req.JSON(200, framework.M{"ok": true})
+type M = map[string]any
 
 // HTTPError is an error carrying an HTTP status code. Services return these
 // (via framework.NewError and friends) and controllers pass them straight to
@@ -54,8 +60,9 @@ func (r *Request) View(component string, props any) {
 	pageProps := structToMap(props)
 
 	// Shared props, available to every page (usePage() on the Vue side).
-	pageProps["auth"] = map[string]any{"user": r.user}
+	pageProps["auth"] = M{"user": r.user}
 	pageProps["appName"] = r.app.config.App.Name
+	pageProps["flash"] = r.consumeFlash()
 
 	r.app.inertia.Render(r.gin, component, pageProps)
 }
@@ -67,7 +74,19 @@ func (r *Request) JSON(status int, data any) {
 
 // Success writes a 200 JSON envelope: {"success": true, "data": ...}.
 func (r *Request) Success(data any) {
-	r.gin.JSON(http.StatusOK, map[string]any{"success": true, "data": data})
+	r.gin.JSON(http.StatusOK, M{"success": true, "data": data})
+}
+
+// Fail writes the standard failure envelope: {"success": false, "message":
+// ...}. Optional extra maps merge additional fields into the envelope —
+// every JSON error Flux emits goes through here so clients can rely on one
+// shape.
+func (r *Request) Fail(status int, message string, extra ...M) {
+	payload := M{"success": false, "message": message}
+	for _, m := range extra {
+		maps.Copy(payload, m)
+	}
+	r.gin.JSON(status, payload)
 }
 
 // Error renders an error response. HTTPError values keep their status;
@@ -96,20 +115,13 @@ func (r *Request) Error(err error) {
 		}
 	}
 
-	r.gin.JSON(status, map[string]any{
-		"success": false,
-		"message": message,
-	})
+	r.Fail(status, message)
 }
 
 // ValidationError writes a 422 with a field→messages error bag in the shape
 // the Flux Vue client (useForm) understands.
 func (r *Request) ValidationError(errors map[string][]string) {
-	r.gin.JSON(http.StatusUnprocessableEntity, map[string]any{
-		"success": false,
-		"message": "The given data was invalid.",
-		"errors":  errors,
-	})
+	r.Fail(http.StatusUnprocessableEntity, "The given data was invalid.", M{"errors": errors})
 }
 
 // Redirect sends the client to another URL. Non-GET requests redirect with

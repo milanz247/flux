@@ -43,15 +43,10 @@ func Auth(app *framework.App, authService *services.AuthService) framework.Middl
 // (login, register) to the dashboard.
 func Guest(app *framework.App, authService *services.AuthService) framework.Middleware {
 	return func(req *framework.Request, next func()) {
-		token := app.Auth().TokenFromRequest(req)
-		if token != "" {
-			if claims, err := app.Auth().ParseToken(token, framework.PurposeAccess); err == nil {
-				if user, err := authService.AuthUserByID(req.Context(), claims.UserID); err == nil {
-					req.SetUser(user)
-					req.Redirect("/dashboard")
-					return
-				}
-			}
+		if user := resolveUser(req, app, authService); user != nil {
+			req.SetUser(user)
+			req.Redirect("/dashboard")
+			return
 		}
 		next()
 	}
@@ -62,16 +57,30 @@ func Guest(app *framework.App, authService *services.AuthService) framework.Midd
 // public but render differently for signed-in users (e.g. the welcome page).
 func Identify(app *framework.App, authService *services.AuthService) framework.Middleware {
 	return func(req *framework.Request, next func()) {
-		token := app.Auth().TokenFromRequest(req)
-		if token != "" {
-			if claims, err := app.Auth().ParseToken(token, framework.PurposeAccess); err == nil {
-				if user, err := authService.AuthUserByID(req.Context(), claims.UserID); err == nil {
-					req.SetUser(user)
-				}
-			}
+		if user := resolveUser(req, app, authService); user != nil {
+			req.SetUser(user)
 		}
 		next()
 	}
+}
+
+// resolveUser looks up the authenticated user for the current request from
+// its bearer token or session cookie, or nil if there isn't one — shared by
+// Guest and Identify, which differ only in what they do with the result.
+func resolveUser(req *framework.Request, app *framework.App, authService *services.AuthService) *framework.AuthUser {
+	token := app.Auth().TokenFromRequest(req)
+	if token == "" {
+		return nil
+	}
+	claims, err := app.Auth().ParseToken(token, framework.PurposeAccess)
+	if err != nil {
+		return nil
+	}
+	user, err := authService.AuthUserByID(req.Context(), claims.UserID)
+	if err != nil {
+		return nil
+	}
+	return user
 }
 
 // Verified requires the authenticated user to have a verified email address.
@@ -91,11 +100,7 @@ func rejectGuest(req *framework.Request) {
 	// Inertia navigation and API clients get a 401; full-page browser
 	// requests are redirected to the login screen.
 	if req.IsInertia() || req.WantsJSON() {
-		req.JSON(http.StatusUnauthorized, map[string]any{
-			"success":  false,
-			"message":  "Unauthenticated.",
-			"redirect": "/login",
-		})
+		req.Fail(http.StatusUnauthorized, "Unauthenticated.", framework.M{"redirect": "/login"})
 		return
 	}
 	req.Redirect("/login")

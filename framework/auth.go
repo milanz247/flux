@@ -115,20 +115,21 @@ func (m *AuthManager) TokenFromRequest(r *Request) string {
 
 // StartSession sets the httpOnly session cookie carrying the JWT.
 func (m *AuthManager) StartSession(r *Request, token string) {
-	secure := m.cfg.App.Env == "production"
-	r.gin.SetCookie(
-		m.cfg.Auth.SessionCookie,
-		token,
-		int(m.SessionTTL().Seconds()),
-		"/", "", secure, true,
-	)
+	m.setSessionCookie(r, token, int(m.SessionTTL().Seconds()))
 }
 
 // EndSession clears the session cookie.
 func (m *AuthManager) EndSession(r *Request) {
-	secure := m.cfg.App.Env == "production"
-	r.gin.SetCookie(m.cfg.Auth.SessionCookie, "", -1, "/", "", secure, true)
+	m.setSessionCookie(r, "", -1)
 }
+
+func (m *AuthManager) setSessionCookie(r *Request, value string, maxAge int) {
+	r.gin.SetCookie(m.cfg.Auth.SessionCookie, value, maxAge, "/", "", secureCookies(m.cfg), true)
+}
+
+// secureCookies reports whether cookies should carry the Secure flag —
+// shared by the session and flash cookies.
+func secureCookies(cfg *config.Config) bool { return cfg.App.Env == "production" }
 
 // HashPassword hashes a plaintext password with bcrypt.
 func HashPassword(password string) (string, error) {

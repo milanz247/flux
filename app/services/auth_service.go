@@ -70,8 +70,7 @@ func (s *AuthService) Register(ctx context.Context, input dto.RegisterDTO) (Auth
 
 // Login verifies credentials and issues a JWT session.
 func (s *AuthService) Login(ctx context.Context, input dto.LoginDTO) (AuthResult, error) {
-	var user models.User
-	err := s.db.WithContext(ctx).Where("email = ?", input.Email).First(&user).Error
+	user, err := s.userByEmail(ctx, input.Email)
 	if errors.Is(err, gorm.ErrRecordNotFound) || (err == nil && !framework.CheckPassword(user.Password, input.Password)) {
 		return AuthResult{}, framework.UnprocessableEntity("These credentials do not match our records.")
 	}
@@ -83,8 +82,8 @@ func (s *AuthService) Login(ctx context.Context, input dto.LoginDTO) (AuthResult
 
 // SendVerificationEmail emails a signed verification link to the user.
 func (s *AuthService) SendVerificationEmail(ctx context.Context, userID uint) error {
-	var user models.User
-	if err := s.db.WithContext(ctx).First(&user, userID).Error; err != nil {
+	user, err := s.userByID(ctx, userID)
+	if err != nil {
 		return err
 	}
 	if user.EmailVerifiedAt != nil {
@@ -106,18 +105,9 @@ func (s *AuthService) SendVerificationEmail(ctx context.Context, userID uint) er
 
 // VerifyEmail validates a verification token and marks the address verified.
 func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
-	claims, err := s.auth.ParseToken(token, framework.PurposeEmailVerify)
+	user, err := s.userByToken(ctx, token, framework.PurposeEmailVerify, "This verification link is invalid or has expired.")
 	if err != nil {
-		return framework.UnprocessableEntity("This verification link is invalid or has expired.")
-	}
-
-	var user models.User
-	if err := s.db.WithContext(ctx).First(&user, claims.UserID).Error; err != nil {
 		return err
-	}
-	// The link only counts for the address it was issued for.
-	if user.Email != claims.Email {
-		return framework.UnprocessableEntity("This verification link is invalid or has expired.")
 	}
 	if user.EmailVerifiedAt != nil {
 		return nil
@@ -130,8 +120,7 @@ func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 // ForgotPassword emails a signed reset link. It intentionally succeeds even
 // for unknown addresses so the endpoint cannot be used to probe accounts.
 func (s *AuthService) ForgotPassword(ctx context.Context, input dto.ForgotPasswordDTO) error {
-	var user models.User
-	err := s.db.WithContext(ctx).Where("email = ?", input.Email).First(&user).Error
+	user, err := s.userByEmail(ctx, input.Email)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
@@ -154,17 +143,9 @@ func (s *AuthService) ForgotPassword(ctx context.Context, input dto.ForgotPasswo
 
 // ResetPassword validates a reset token and stores the new password.
 func (s *AuthService) ResetPassword(ctx context.Context, input dto.ResetPasswordDTO) error {
-	claims, err := s.auth.ParseToken(input.Token, framework.PurposePasswordReset)
+	user, err := s.userByToken(ctx, input.Token, framework.PurposePasswordReset, "This password reset link is invalid or has expired.")
 	if err != nil {
-		return framework.UnprocessableEntity("This password reset link is invalid or has expired.")
-	}
-
-	var user models.User
-	if err := s.db.WithContext(ctx).First(&user, claims.UserID).Error; err != nil {
 		return err
-	}
-	if user.Email != claims.Email {
-		return framework.UnprocessableEntity("This password reset link is invalid or has expired.")
 	}
 
 	hash, err := framework.HashPassword(input.Password)
@@ -176,8 +157,8 @@ func (s *AuthService) ResetPassword(ctx context.Context, input dto.ResetPassword
 
 // AuthUserByID loads the framework identity for the auth middleware.
 func (s *AuthService) AuthUserByID(ctx context.Context, id uint) (*framework.AuthUser, error) {
-	var user models.User
-	if err := s.db.WithContext(ctx).First(&user, id).Error; err != nil {
+	user, err := s.userByID(ctx, id)
+	if err != nil {
 		return nil, err
 	}
 	authUser := &framework.AuthUser{ID: user.ID, Name: user.Name, Email: user.Email}
@@ -185,6 +166,37 @@ func (s *AuthService) AuthUserByID(ctx context.Context, id uint) (*framework.Aut
 		authUser.EmailVerifiedAt = user.EmailVerifiedAt.Format(time.RFC3339)
 	}
 	return authUser, nil
+}
+
+func (s *AuthService) userByID(ctx context.Context, id uint) (models.User, error) {
+	var user models.User
+	err := s.db.WithContext(ctx).First(&user, id).Error
+	return user, err
+}
+
+func (s *AuthService) userByEmail(ctx context.Context, email string) (models.User, error) {
+	var user models.User
+	err := s.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	return user, err
+}
+
+// userByToken parses a signed, purpose-scoped token and loads the user it
+// names. A bad signature, an unknown user, or a token whose address no
+// longer matches the account all collapse into the same invalidMsg so the
+// caller can't use the response to tell those cases apart.
+func (s *AuthService) userByToken(ctx context.Context, token string, purpose framework.TokenPurpose, invalidMsg string) (models.User, error) {
+	claims, err := s.auth.ParseToken(token, purpose)
+	if err != nil {
+		return models.User{}, framework.UnprocessableEntity(invalidMsg)
+	}
+	user, err := s.userByID(ctx, claims.UserID)
+	if err != nil {
+		return models.User{}, err
+	}
+	if user.Email != claims.Email {
+		return models.User{}, framework.UnprocessableEntity(invalidMsg)
+	}
+	return user, nil
 }
 
 func (s *AuthService) issueSession(user models.User) (AuthResult, error) {

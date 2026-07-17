@@ -92,14 +92,21 @@ req.User() / req.UserID()  // authenticated user (set by middleware.Auth)
 
 ```go
 req.View("Users/Index", dto)   // render Pages/Users/Index.vue with DTO as props
-req.JSON(200, data)            // raw JSON
+req.JSON(200, framework.M{...}) // raw JSON (M is shorthand for map[string]any, like gin.H)
 req.Success(data)              // {"success":true,"data":...}
+req.Fail(403, "No.")           // {"success":false,"message":...} — the standard error envelope
 req.Error(err)                 // status-aware (HTTPError, gorm.ErrRecordNotFound → 404, else 500)
 req.Redirect("/users")         // 303 on non-GET so Inertia forms behave like Laravel
+req.RedirectWith("/login", "success", "Signed out.") // redirect + one-shot flash message
 req.Download(path, "file.pdf") // attachment
 req.ServeFile(path)            // inline file (req.File reads uploads; ServeFile sends files)
 req.NoContent()                // 204
 ```
+
+Flash messages set with `RedirectWith` arrive on the Vue side as the shared
+`flash` prop — read it with `useFlash()` (see `AuthLayout.vue` for a working
+example). They render exactly once: the framework clears the flash cookie as
+soon as the next page is served.
 
 ### Routing
 
@@ -166,7 +173,7 @@ Verification and reset links are short-lived purpose-scoped JWTs. Mail uses
   push/pop, 409 asset-version reloads, 401 → login, 422 → error bags.
 - `Link.vue` — SPA `<a>` replacement.
 - `useForm.ts` — reactive forms with `processing` + `errors`.
-- `usePage.ts` / Pinia `stores/auth.ts` — shared props (`auth.user`, `appName`) everywhere.
+- `usePage.ts` / Pinia `stores/auth.ts` — shared props (`auth.user`, `appName`, `flash`) everywhere.
 
 ## CLI
 

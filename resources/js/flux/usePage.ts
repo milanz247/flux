@@ -29,3 +29,12 @@ export function useAuth() {
 export function useAppName() {
   return computed(() => (state.page?.props as SharedProps | undefined)?.appName ?? 'Flux')
 }
+
+/**
+ * Shared props shortcut: the one-shot flash message set server-side via
+ * req.RedirectWith() — null when there is none. It is cleared by the server
+ * as soon as it is rendered, so it survives exactly one page view.
+ */
+export function useFlash() {
+  return computed(() => (state.page?.props as SharedProps | undefined)?.flash ?? null)
+}
