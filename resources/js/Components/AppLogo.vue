@@ -1,13 +1,8 @@
 <script setup lang="ts">
-// Brand mark: a rounded gradient badge with an abstract flowing bolt,
-// symbolizing "Flux" (continuous motion). Gradient id is namespaced per
-// instance so multiple logos (desktop sidebar + mobile sheet) can render
-// on the page at once without clashing.
-import { useId } from 'vue'
-
+// Brand mark: an "F" whose crossbar opens into a code bracket, on a flat
+// fill plate — a standard framework-logo treatment (Vite/Astro/Nuxt style)
+// rather than a gradient badge.
 withDefaults(defineProps<{ size?: number }>(), { size: 32 })
-
-const gradientId = `flux-logo-grad-${useId()}`
 </script>
 
 <template>
@@ -20,18 +15,10 @@ const gradientId = `flux-logo-grad-${useId()}`
     role="img"
     aria-label="Flux logo"
   >
-    <defs>
-      <linearGradient :id="gradientId" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="#6366f1" />
-        <stop offset="55%" stop-color="#8b5cf6" />
-        <stop offset="100%" stop-color="#06b6d4" />
-      </linearGradient>
-    </defs>
-    <rect width="40" height="40" rx="11" :fill="`url(#${gradientId})`" />
-    <path
-      d="M21 9 L13 21.5 L18.5 21.5 L17 31 L27 17.5 L21.2 17.5 Z"
-      fill="white"
-      fill-opacity="0.95"
-    />
+    <rect width="40" height="40" rx="10" fill="#4457ff" />
+    <path d="M14 9.5C14 8.67 14.67 8 15.5 8C16.33 8 17 8.67 17 9.5V30.5C17 31.33 16.33 32 15.5 32C14.67 32 14 31.33 14 30.5V9.5Z" fill="white" />
+    <path d="M17 9.5C17 8.67 17.67 8 18.5 8H25.5L21 12.5V9.5Z" fill="white" />
+    <path d="M17 18C17 17.17 17.67 16.5 18.5 16.5H22.5L18 21V18Z" fill="white" />
+    <path d="M25 11L31 17L25 23L23 21L27 17L23 13L25 11Z" fill="white" fill-opacity="0.55" />
   </svg>
 </template>
