@@ -20,6 +20,12 @@ func Register(app *framework.App) {
 	// Controllers.
 	authController := controllers.NewAuthController(authService)
 	dashboardController := controllers.NewDashboardController()
+	homeController := controllers.NewHomeController()
+
+	// Public marketing page — visible to guests and authenticated users alike,
+	// rendering a different nav depending on session state.
+	public := route.Group("", middleware.Identify(app, authService))
+	public.Get("/", homeController.Welcome)
 
 	// Guest-only pages.
 	guest := route.Group("", middleware.Guest(app, authService))
@@ -37,7 +43,6 @@ func Register(app *framework.App) {
 
 	// Authenticated app.
 	auth := route.Group("", middleware.Auth(app, authService))
-	auth.Get("/", dashboardController.Index)
 	auth.Get("/dashboard", dashboardController.Index)
 	auth.Post("/logout", authController.Logout)
 	auth.Post("/verify-email/resend", authController.ResendVerification)

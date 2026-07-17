@@ -57,6 +57,23 @@ func Guest(app *framework.App, authService *services.AuthService) framework.Midd
 	}
 }
 
+// Identify attaches the authenticated user to the request when a valid
+// token is present, but never redirects or rejects — for pages that are
+// public but render differently for signed-in users (e.g. the welcome page).
+func Identify(app *framework.App, authService *services.AuthService) framework.Middleware {
+	return func(req *framework.Request, next func()) {
+		token := app.Auth().TokenFromRequest(req)
+		if token != "" {
+			if claims, err := app.Auth().ParseToken(token, framework.PurposeAccess); err == nil {
+				if user, err := authService.AuthUserByID(req.Context(), claims.UserID); err == nil {
+					req.SetUser(user)
+				}
+			}
+		}
+		next()
+	}
+}
+
 // Verified requires the authenticated user to have a verified email address.
 // Apply after Auth.
 func Verified() framework.Middleware {
